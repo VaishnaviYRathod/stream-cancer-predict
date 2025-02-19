@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report
 import pickle  # Use the standard pickle module
+import plotly.graph_objects as go
 
 # Define the column names based on the typical structure of the breast cancer dataset
 column_names = [
