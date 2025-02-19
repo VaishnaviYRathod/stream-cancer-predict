@@ -185,9 +185,11 @@ def main():
   
   with col1:
     radar_chart = get_radar_chart(input_data)
-    st.plotly_chart(radar_chart)
+  st.pyplot(radar_chart)
+
   with col2:
     add_predictions(input_data)
+    
 
 
  
