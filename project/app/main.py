@@ -1,8 +1,64 @@
 import streamlit as st
 import pickle
 import pandas as pd
-import plotly.graph_objects as go
+import matplotlib.pyplot as plt
 import numpy as np
+
+def get_radar_chart(input_data):
+    input_data = get_scaled_values(input_data)
+    
+    categories = ['Radius', 'Texture', 'Perimeter', 'Area', 
+                  'Smoothness', 'Compactness', 
+                  'Concavity', 'Concave Points',
+                  'Symmetry', 'Fractal Dimension']
+
+    values_mean = [
+        input_data['radius_mean'], input_data['texture_mean'], input_data['perimeter_mean'],
+        input_data['area_mean'], input_data['smoothness_mean'], input_data['compactness_mean'],
+        input_data['concavity_mean'], input_data['concave points_mean'], input_data['symmetry_mean'],
+        input_data['fractal_dimension_mean']
+    ]
+
+    values_se = [
+        input_data['radius_se'], input_data['texture_se'], input_data['perimeter_se'], input_data['area_se'],
+        input_data['smoothness_se'], input_data['compactness_se'], input_data['concavity_se'],
+        input_data['concave points_se'], input_data['symmetry_se'], input_data['fractal_dimension_se']
+    ]
+
+    values_worst = [
+        input_data['radius_worst'], input_data['texture_worst'], input_data['perimeter_worst'],
+        input_data['area_worst'], input_data['smoothness_worst'], input_data['compactness_worst'],
+        input_data['concavity_worst'], input_data['concave points_worst'], input_data['symmetry_worst'],
+        input_data['fractal_dimension_worst']
+    ]
+
+    # Close the circular plot
+    values_mean += values_mean[:1]
+    values_se += values_se[:1]
+    values_worst += values_worst[:1]
+
+    angles = np.linspace(0, 2 * np.pi, len(categories), endpoint=False).tolist()
+    angles += angles[:1]  # Close the plot
+
+    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
+
+    ax.plot(angles, values_mean, color='blue', linewidth=2, linestyle='solid', label='Mean Value')
+    ax.fill(angles, values_mean, color='blue', alpha=0.2)
+
+    ax.plot(angles, values_se, color='green', linewidth=2, linestyle='dashed', label='Standard Error')
+    ax.fill(angles, values_se, color='green', alpha=0.2)
+
+    ax.plot(angles, values_worst, color='red', linewidth=2, linestyle='dotted', label='Worst Value')
+    ax.fill(angles, values_worst, color='red', alpha=0.2)
+
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels(categories, fontsize=10)
+    ax.set_yticklabels([])
+
+    ax.legend(loc='upper right')
+
+    return fig
+
 
 
 def get_clean_data():
@@ -81,61 +137,6 @@ def get_scaled_values(input_dict):
   
   return scaled_dict
   
-
-def get_radar_chart(input_data):
-  
-  input_data = get_scaled_values(input_data)
-  
-  categories = ['Radius', 'Texture', 'Perimeter', 'Area', 
-                'Smoothness', 'Compactness', 
-                'Concavity', 'Concave Points',
-                'Symmetry', 'Fractal Dimension']
-
-  fig = go.Figure()
-
-  fig.add_trace(go.Scatterpolar(
-        r=[
-          input_data['radius_mean'], input_data['texture_mean'], input_data['perimeter_mean'],
-          input_data['area_mean'], input_data['smoothness_mean'], input_data['compactness_mean'],
-          input_data['concavity_mean'], input_data['concave points_mean'], input_data['symmetry_mean'],
-          input_data['fractal_dimension_mean']
-        ],
-        theta=categories,
-        fill='toself',
-        name='Mean Value'
-  ))
-  fig.add_trace(go.Scatterpolar(
-        r=[
-          input_data['radius_se'], input_data['texture_se'], input_data['perimeter_se'], input_data['area_se'],
-          input_data['smoothness_se'], input_data['compactness_se'], input_data['concavity_se'],
-          input_data['concave points_se'], input_data['symmetry_se'],input_data['fractal_dimension_se']
-        ],
-        theta=categories,
-        fill='toself',
-        name='Standard Error'
-  ))
-  fig.add_trace(go.Scatterpolar(
-        r=[
-          input_data['radius_worst'], input_data['texture_worst'], input_data['perimeter_worst'],
-          input_data['area_worst'], input_data['smoothness_worst'], input_data['compactness_worst'],
-          input_data['concavity_worst'], input_data['concave points_worst'], input_data['symmetry_worst'],
-          input_data['fractal_dimension_worst']
-        ],
-        theta=categories,
-        fill='toself',
-        name='Worst Value'
-  ))
-
-  fig.update_layout(
-    polar=dict(
-      radialaxis=dict(
-        visible=True,
-        range=[0, 1]
-      )),
-    showlegend=True
-  )
-  
-  return fig
 
 
 def add_predictions(input_data):
